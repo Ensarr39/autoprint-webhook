@@ -1,5 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
+import fetch from "node-fetch"; // 🔹 Integrately'ye veri göndermek için eklendi
 
 const app = express();
 app.use(bodyParser.json());
@@ -19,7 +20,7 @@ app.get("/webhook", (req, res) => {
 });
 
 // Webhook receive (POST)
-app.post("/webhook", (req, res) => {
+app.post("/webhook", async (req, res) => {
   console.log("===== WEBHOOK POST RECEIVED =====");
   console.log("Headers:", JSON.stringify(req.headers, null, 2));
   console.log("Body:", JSON.stringify(req.body, null, 2));
@@ -36,6 +37,16 @@ app.post("/webhook", (req, res) => {
       const body = msg.text?.body || msg.button?.text || "(no text)";
       console.log(`Incoming WA message from ${from}: ${body}`);
     }
+
+    // 🔹 Gelen veriyi Integrately'ye ilet
+    const integratelyUrl = "https://webhooks.integrately.com/a/webhooks/80284c2f741747e9b51f94e4f16e90c";
+    await fetch(integratelyUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req.body),
+    });
+    console.log("➡️ Data forwarded to Integrately");
+
   } catch (e) {
     console.error("Parsing error:", e);
   }
@@ -45,4 +56,3 @@ app.post("/webhook", (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Webhook running on port ${PORT}`));
-
