@@ -1,13 +1,13 @@
 import express from "express";
 import bodyParser from "body-parser";
-import fetch from "node-fetch";
+import axios from "axios";
 
 const app = express();
 app.use(bodyParser.json());
 
 // ✅ Webhook Verify (GET)
 app.get("/webhook", (req, res) => {
-  const VERIFY_TOKEN = "AutoPrintVerify1"; // kendi tokenin
+  const VERIFY_TOKEN = "AutoPrintVerify1";
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
@@ -39,18 +39,16 @@ app.post("/webhook", async (req, res) => {
       // ✅ Integrately webhook URL
       const integratelyUrl = "https://webhooks.integrately.com/a/webhooks/80284c2f741747e9b51f93e4ef16e90c";
 
-      // ✅ Forward to Integrately
-      const response = await fetch(integratelyUrl, {
-        method: "POST",
+      // ✅ Forward to Integrately (axios)
+      const response = await axios.post(integratelyUrl, req.body, {
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(req.body),
+        validateStatus: () => true, // hata olsa bile status'u yakalayalım
       });
 
-      const respText = await response.text();
       console.log("📤 Integrately Response Status:", response.status);
-      console.log("📤 Integrately Response Body:", respText.slice(0, 400));
+      console.log("📤 Integrately Response Body:", JSON.stringify(response.data).slice(0, 400));
 
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         console.log("✅ Data successfully forwarded to Integrately!");
       } else {
         console.error("⚠️ Failed to forward data to Integrately. Check URL or mapping.");
