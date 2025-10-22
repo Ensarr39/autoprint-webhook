@@ -1,6 +1,5 @@
 import express from "express";
 import bodyParser from "body-parser";
-import fetch from "node-fetch"; // 🔹 Integrately'ye veri göndermek için eklendi
 
 const app = express();
 app.use(bodyParser.json());
@@ -39,14 +38,16 @@ app.post("/webhook", async (req, res) => {
     }
 
     // 🔹 Gelen veriyi Integrately'ye ilet
-    const integratelyUrl = "https://webhooks.integrately.com/a/webhooks/80284c2f741747e9b51f94e4f16e90c";
+    const integratelyUrl =
+      "https://webhooks.integrately.com/a/webhooks/80284c2f741747e9b51f94e4f16e90c";
+
     await fetch(integratelyUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req.body),
     });
-    console.log("➡️ Data forwarded to Integrately");
 
+    console.log("➡️ Data forwarded to Integrately");
   } catch (e) {
     console.error("Parsing error:", e);
   }
