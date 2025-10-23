@@ -5,7 +5,7 @@ import axios from "axios";
 const app = express();
 app.use(bodyParser.json());
 
-// ✅ Webhook Verify (GET)
+
 app.get("/webhook", (req, res) => {
   const VERIFY_TOKEN = "AutoPrintVerify1";
   const mode = req.query["hub.mode"];
@@ -19,7 +19,7 @@ app.get("/webhook", (req, res) => {
   res.sendStatus(403);
 });
 
-// ✅ Webhook Receive (POST)
+
 app.post("/webhook", async (req, res) => {
   console.log("===== 📩 WEBHOOK POST RECEIVED =====");
   console.log("Headers:", JSON.stringify(req.headers, null, 2));
@@ -36,10 +36,10 @@ app.post("/webhook", async (req, res) => {
       const body = msg.text?.body || msg.button?.text || "(no text)";
       console.log(`💬 Incoming WA message from ${from}: ${body}`);
 
-      // ✅ Integrately webhook URL
+      
       const integratelyUrl = "https://webhooks.integrately.com/a/webhooks/80284c2f741747e9b51f93e4ef16e90c";
 
-      // ✅ Forward to Integrately (axios)
+      
       const response = await axios.post(integratelyUrl, req.body, {
         headers: { "Content-Type": "application/json" },
         validateStatus: () => true, // hata olsa bile status'u yakalayalım
@@ -63,6 +63,6 @@ app.post("/webhook", async (req, res) => {
   res.sendStatus(200);
 });
 
-// ✅ Server Start
+
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`🚀 Webhook server running on port ${PORT}`));
